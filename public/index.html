@@ -121,7 +121,7 @@
   </div>
   <div class="header-text">
     <h1>DocuSign Signing</h1>
-    <p>Powered by JWT grant &middot; Embedded signing</p>
+    <p id="header-sub">Powered by JWT grant &middot; Embedded signing</p>
   </div>
   <span class="env-badge" id="env-badge">Demo</span>
 </header>
@@ -161,10 +161,6 @@
           <label for="signerEmail">Email address</label>
           <input type="email" id="signerEmail" placeholder="jane@example.com" autocomplete="email" />
         </div>
-        <div class="field">
-          <label for="roleName">Role</label>
-          <input type="text" id="roleName" placeholder="signer" autocomplete="roleName" />
-        </div>      
         <button class="btn btn-primary" style="margin-top:24px;" id="btn-start">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
@@ -188,6 +184,33 @@
       allow="camera; microphone"
       sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation allow-popups-to-escape-sandbox allow-modals">
     </iframe>
+  </div>
+
+  <!-- Step 2b: Mobile waiting screen (shown while user signs in new tab) -->
+  <div id="panel-waiting" style="display:none;" class="fadein">
+    <div class="card">
+      <div style="text-align:center;padding:40px 24px;">
+        <div style="width:72px;height:72px;background:var(--accent-lt);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+          </svg>
+        </div>
+        <div style="font-size:1.15rem;font-weight:700;color:var(--ink);">DocuSign opened in a new tab</div>
+        <div style="color:var(--ink-soft);margin-top:10px;font-size:.9rem;line-height:1.6;">
+          Complete signing in the tab that just opened.<br/>
+          This page will update automatically when you finish.
+        </div>
+        <div id="waiting-pulse" style="margin-top:24px;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ink-muted);font-size:.82rem;">
+          <div class="spinner" style="border-top-color:var(--accent);border-color:var(--border);width:14px;height:14px;border-width:2px;"></div>
+          Waiting for signing to complete&hellip;
+        </div>
+        <button class="btn btn-ghost" style="margin-top:20px;max-width:260px;" id="btn-reopen-tab">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Re-open signing tab
+        </button>
+        <button class="btn btn-ghost" style="margin-top:10px;max-width:260px;font-size:.82rem;" id="btn-cancel-wait">Cancel</button>
+      </div>
+    </div>
   </div>
 
   <!-- Step 3: Complete -->
@@ -214,7 +237,7 @@
   <a href="https://developers.docusign.com/docs/esign-rest-api/how-to/embedded-signing/" target="_blank" style="color:var(--accent);text-decoration:none;">Docs &#8599;</a>
 </footer>
 
-<script src="/App.js"></script>
+<script src="/app.js"></script>
 
 </body>
 </html>

@@ -742,6 +742,7 @@ const state = {
   envelopeId: null,
   signingUrl: null,
   accountId: null,
+  templateId:null,
   isDemo: true,
 };
 
@@ -858,6 +859,7 @@ async function getJwtToken() {
     state.envelopeId   = result.envelopeId;
     state.signingUrl   = result.signingUrl;
     state.accountId    = accountId;
+    state.templateId    = templateId;
     state.isDemo       = isDemo;
     state.clientUserId = clientUserId;
     state.signerName   = signerName;

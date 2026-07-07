@@ -30,11 +30,12 @@ const config = {
   integrationKey : process.env.DS_INTEGRATION_KEY,
   userId         : process.env.DS_USER_ID,
   accountId      : process.env.DS_ACCOUNT_ID,
-  templateId      : process.env.DS_TEMPLATE_ID,
   // RSA private key: store as a single-line env var with \n for newlines
   // e.g.  DS_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\nMII...\n-----END RSA PRIVATE KEY-----"
   privateKey     : (process.env.DS_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
   isDemo         : process.env.DS_ENVIRONMENT !== 'production',
+  templateId     : process.env.DS_TEMPLATE_ID,
+  redirectUri    : process.env.DS_REDIRECT_URI,
 };
 
 const oauthBase = config.isDemo
@@ -237,11 +238,12 @@ app.get('/api/health', (req, res) => {
 app.get('/api/debug-config', (req, res) => {
   res.json({
     DS_INTEGRATION_KEY: config.integrationKey ? config.integrationKey.slice(0,8) + '...' : 'MISSING',
-	DS_TEMPLATE_ID: config.templateId ? config.templateId.slice(0,8) + '...' : 'MISSING',
     DS_USER_ID:         config.userId         ? config.userId.slice(0,8)         + '...' : 'MISSING',
     DS_ACCOUNT_ID:      config.accountId      ? config.accountId.slice(0,8)      + '...' : 'MISSING',
     DS_PRIVATE_KEY:     config.privateKey     ? 'SET (' + config.privateKey.length + ' chars)' : 'MISSING',
     DS_ENVIRONMENT:     config.isDemo ? 'demo' : 'production',
+    DS_TEMPLATE_ID:     config.templateId  ? config.templateId  : 'MISSING',
+    DS_REDIRECT_URI:    config.redirectUri ? config.redirectUri : 'MISSING',
   });
 });
 
@@ -478,10 +480,11 @@ app.get('*', (req, res) => {
     const configScript = '<script>\n'
       + '  window.__DS_CONFIG__ = {\n'
       + '    accountId:      ' + JSON.stringify(config.accountId      || '') + ',\n'
-	  + '    templateId:      ' + JSON.stringify(config.templateId      || '') + ',\n'
       + '    integrationKey: ' + JSON.stringify(config.integrationKey || '') + ',\n'
       + '    userId:         ' + JSON.stringify(config.userId         || '') + ',\n'
       + '    environment:    ' + JSON.stringify(config.isDemo ? 'demo' : 'production') + ',\n'
+      + '    templateId:     ' + JSON.stringify(config.templateId  || '') + ',\n'
+      + '    redirectUri:    ' + JSON.stringify(config.redirectUri || '') + ',\n'
       + '  };\n'
       + '<\/script>';
 

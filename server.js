@@ -81,8 +81,12 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Serve the frontend from /public
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static assets (css, js, images) but NOT .html —
+// .html must pass through to the catch-all so env vars get injected.
+app.use((req, res, next) => {
+  if (req.path.endsWith('.html') || req.path === '/') return next();
+  express.static(path.join(__dirname, 'public'))(req, res, next);
+});
 
 // ─────────────────────────────────────────────
 // In-memory token cache (avoids redundant JWT exchanges)
@@ -223,6 +227,21 @@ app.get('/api/health', (req, res) => {
     environment: config.isDemo ? 'demo' : 'production',
     configLoaded: !!(config.integrationKey && config.userId && config.accountId && config.privateKey),
     timestamp: new Date().toISOString(),
+  });
+});
+
+/**
+ * GET /api/debug-config
+ * Shows which env vars are loaded (values masked). Remove in production.
+ */
+app.get('/api/debug-config', (req, res) => {
+  res.json({
+    DS_INTEGRATION_KEY: config.integrationKey ? config.integrationKey.slice(0,8) + '...' : 'MISSING',
+	DS_TEMPLATE_ID: config.templateId ? config.templateId.slice(0,8) + '...' : 'MISSING',
+    DS_USER_ID:         config.userId         ? config.userId.slice(0,8)         + '...' : 'MISSING',
+    DS_ACCOUNT_ID:      config.accountId      ? config.accountId.slice(0,8)      + '...' : 'MISSING',
+    DS_PRIVATE_KEY:     config.privateKey     ? 'SET (' + config.privateKey.length + ' chars)' : 'MISSING',
+    DS_ENVIRONMENT:     config.isDemo ? 'demo' : 'production',
   });
 });
 

@@ -211,7 +211,7 @@
           <span class="field-hint">The URL DocuSign redirects to after the session ends</span>
         </div>
 
-        <button class="btn btn-primary" style="margin-top:20px;" id="btn-get-token" onclick="getJwtToken()">
+        <button class="btn btn-primary" style="margin-top:20px;" id="btn-get-token">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           Get JWT Token &amp; Create Envelope
         </button>
@@ -232,11 +232,11 @@
       </div>
       <div class="card-body">
         <div id="token-details"></div>
-        <button class="btn btn-primary" style="margin-top:16px;" onclick="openSigning()">
+        <button class="btn btn-primary" style="margin-top:16px;" id="btn-open-signing">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
           Open Signing Session
         </button>
-        <button class="btn btn-ghost btn-sm" style="margin-top:10px;width:100%;" onclick="resetFlow()">&#8592; Back to Configuration</button>
+        <button class="btn btn-ghost btn-sm" style="margin-top:10px;width:100%;" id="btn-back-config">&#8592; Back to Configuration</button>
       </div>
     </div>
   </div>
@@ -260,7 +260,7 @@
       <h2 style="color:var(--success);">Document Signed!</h2>
       <p style="color:var(--ink-soft);margin-top:8px;font-size:.9rem;">The envelope has been completed successfully.</p>
       <div id="complete-details" style="margin-top:16px;"></div>
-      <button class="btn btn-ghost" style="margin-top:20px;width:100%;max-width:280px;" onclick="resetFlow()">Sign Another Document</button>
+      <button class="btn btn-ghost" style="margin-top:20px;width:100%;max-width:280px;" id="btn-sign-another">Sign Another Document</button>
     </div>
   </div>
 
@@ -445,6 +445,16 @@ function resetFlow() {
 
 // ── Auto-fill from server-injected config ──
 document.addEventListener('DOMContentLoaded', function () {
+  // Wire up button event listeners (no inline onclick — CSP compliant)
+  var btnGetToken   = document.getElementById('btn-get-token');
+  var btnOpenSigning = document.getElementById('btn-open-signing');
+  var btnBackConfig  = document.getElementById('btn-back-config');
+  var btnSignAnother = document.getElementById('btn-sign-another');
+  if (btnGetToken)    btnGetToken.addEventListener('click', getJwtToken);
+  if (btnOpenSigning) btnOpenSigning.addEventListener('click', openSigning);
+  if (btnBackConfig)  btnBackConfig.addEventListener('click', resetFlow);
+  if (btnSignAnother) btnSignAnother.addEventListener('click', resetFlow);
+
   var cfg = window.__DS_CONFIG__;
   if (!cfg) return;
 

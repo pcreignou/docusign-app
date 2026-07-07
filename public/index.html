@@ -742,7 +742,7 @@ const state = {
   envelopeId: null,
   signingUrl: null,
   accountId: null,
-  templateId:null,
+  templateId: null,
   isDemo: true,
 };
 
@@ -859,7 +859,7 @@ async function getJwtToken() {
     state.envelopeId   = result.envelopeId;
     state.signingUrl   = result.signingUrl;
     state.accountId    = accountId;
-    state.templateId    = templateId;
+	state.templateId    = templateId;
     state.isDemo       = isDemo;
     state.clientUserId = clientUserId;
     state.signerName   = signerName;
@@ -993,6 +993,42 @@ function openSigning() {
   <button class="btn-sim" onclick="window.parent.postMessage({type:'docusign','event':'signing_complete',envelopeId:'${state.envelopeId}'},'*')">
     ✓ Simulate Signing Complete
   </button>
+
+<script>
+// Auto-fill config fields from server-injected window.__DS_CONFIG__
+document.addEventListener('DOMContentLoaded', function () {
+  var cfg = window.__DS_CONFIG__;
+  if (!cfg) return;
+
+  function setVal(id, val) {
+    var el = document.getElementById(id);
+    if (el && val) el.value = val;
+  }
+
+  setVal('accountId',      cfg.accountId);
+  setVal('integrationKey', cfg.integrationKey);
+  setVal('userId',         cfg.userId);
+
+  if (cfg.environment) {
+    var sel = document.getElementById('environment');
+    if (sel) {
+      sel.value = cfg.environment;
+      sel.dispatchEvent(new Event('change'));
+    }
+  }
+
+  var filled = [cfg.accountId, cfg.integrationKey, cfg.userId].filter(Boolean).length;
+  if (filled > 0) {
+    var notice = document.createElement('div');
+    notice.className = 'alert alert-info';
+    notice.style.cssText = 'margin-bottom:16px;font-size:.8rem;';
+    notice.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+      + '<div>' + filled + ' field' + (filled > 1 ? 's' : '') + ' pre-filled from server environment.</div>';
+    var body = document.querySelector('#panel-config .card-body');
+    if (body) body.insertBefore(notice, body.firstChild);
+  }
+});
+</script>
 </body>
 </html>`;
 
@@ -1067,46 +1103,41 @@ function resetFlow() {
 }
 </script>
 
-</body>
-</html>
+
 <script>
-// ─────────────────────────────────────────────
-// Auto-fill config fields from server-injected env values
-// ─────────────────────────────────────────────
-(function autoFill() {
-  const cfg = window.__DS_CONFIG__;
+// Auto-fill config fields from server-injected window.__DS_CONFIG__
+document.addEventListener('DOMContentLoaded', function () {
+  var cfg = window.__DS_CONFIG__;
   if (!cfg) return;
 
-  const set = (id, val) => {
-    const el = document.getElementById(id);
+  function setVal(id, val) {
+    var el = document.getElementById(id);
     if (el && val) el.value = val;
-  };
+  }
 
-  set('accountId',      cfg.accountId);
-  set('integrationKey', cfg.integrationKey);
-  set('userId',         cfg.userId);
+  setVal('accountId',      cfg.accountId);
+  setVal('integrationKey', cfg.integrationKey);
+  setVal('userId',         cfg.userId);
 
   if (cfg.environment) {
-    const sel = document.getElementById('environment');
+    var sel = document.getElementById('environment');
     if (sel) {
       sel.value = cfg.environment;
-      sel.dispatchEvent(new Event('change')); // update the env badge
+      sel.dispatchEvent(new Event('change'));
     }
   }
 
-  // Show a subtle notice if any fields were populated
-  const filled = [cfg.accountId, cfg.integrationKey, cfg.userId].filter(Boolean).length;
+  var filled = [cfg.accountId, cfg.integrationKey, cfg.userId].filter(Boolean).length;
   if (filled > 0) {
-    const notice = document.createElement('div');
+    var notice = document.createElement('div');
     notice.className = 'alert alert-info';
     notice.style.cssText = 'margin-bottom:16px;font-size:.8rem;';
-    notice.innerHTML = `
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-      </svg>
-      <div>${filled} field${filled > 1 ? 's' : ''} pre-filled from server environment variables.</div>`;
-    const body = document.querySelector('#panel-config .card-body');
+    notice.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+      + '<div>' + filled + ' field' + (filled > 1 ? 's' : '') + ' pre-filled from server environment.</div>';
+    var body = document.querySelector('#panel-config .card-body');
     if (body) body.insertBefore(notice, body.firstChild);
   }
-})();
+});
 </script>
+</body>
+</html>

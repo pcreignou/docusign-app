@@ -455,16 +455,16 @@ app.get('*', (req, res) => {
 
     // Inject a small config script before </head>
     // Only non-secret values are sent — the RSA key never leaves the server.
-    const configScript = `
-  <script>
-    window.__DS_CONFIG__ = {
-      accountId:      \${JSON.stringify(config.accountId      || '')},
-      templateId:      \${JSON.stringify(config.templateId      || '')},
-      integrationKey: \${JSON.stringify(config.integrationKey || '')},
-      userId:         \${JSON.stringify(config.userId         || '')},
-      environment:    \${JSON.stringify(config.isDemo ? 'demo' : 'production')},
-    };
-  </script>`;
+    // Build config block using string concat — no template literal escaping issues
+    const configScript = '<script>\n'
+      + '  window.__DS_CONFIG__ = {\n'
+      + '    accountId:      ' + JSON.stringify(config.accountId      || '') + ',\n'
+	  + '    templateId:      ' + JSON.stringify(config.templateId      || '') + ',\n'
+      + '    integrationKey: ' + JSON.stringify(config.integrationKey || '') + ',\n'
+      + '    userId:         ' + JSON.stringify(config.userId         || '') + ',\n'
+      + '    environment:    ' + JSON.stringify(config.isDemo ? 'demo' : 'production') + ',\n'
+      + '  };\n'
+      + '<\/script>';
 
     html = html.replace('</head>', configScript + '\n</head>');
     res.setHeader('Content-Type', 'text/html');

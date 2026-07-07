@@ -1067,3 +1067,44 @@ function resetFlow() {
 
 </body>
 </html>
+<script>
+// ─────────────────────────────────────────────
+// Auto-fill config fields from server-injected env values
+// ─────────────────────────────────────────────
+(function autoFill() {
+  const cfg = window.__DS_CONFIG__;
+  if (!cfg) return;
+
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val) el.value = val;
+  };
+
+  set('accountId',      cfg.accountId);
+  set('integrationKey', cfg.integrationKey);
+  set('userId',         cfg.userId);
+
+  if (cfg.environment) {
+    const sel = document.getElementById('environment');
+    if (sel) {
+      sel.value = cfg.environment;
+      sel.dispatchEvent(new Event('change')); // update the env badge
+    }
+  }
+
+  // Show a subtle notice if any fields were populated
+  const filled = [cfg.accountId, cfg.integrationKey, cfg.userId].filter(Boolean).length;
+  if (filled > 0) {
+    const notice = document.createElement('div');
+    notice.className = 'alert alert-info';
+    notice.style.cssText = 'margin-bottom:16px;font-size:.8rem;';
+    notice.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+      </svg>
+      <div>${filled} field${filled > 1 ? 's' : ''} pre-filled from server environment variables.</div>`;
+    const body = document.querySelector('#panel-config .card-body');
+    if (body) body.insertBefore(notice, body.firstChild);
+  }
+})();
+</script>

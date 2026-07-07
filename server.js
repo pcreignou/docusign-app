@@ -30,6 +30,7 @@ const config = {
   integrationKey : process.env.DS_INTEGRATION_KEY,
   userId         : process.env.DS_USER_ID,
   accountId      : process.env.DS_ACCOUNT_ID,
+  templateId      : process.env.DS_TEMPLATE_ID,
   // RSA private key: store as a single-line env var with \n for newlines
   // e.g.  DS_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\nMII...\n-----END RSA PRIVATE KEY-----"
   privateKey     : (process.env.DS_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
@@ -458,6 +459,7 @@ app.get('*', (req, res) => {
   <script>
     window.__DS_CONFIG__ = {
       accountId:      \${JSON.stringify(config.accountId      || '')},
+      templateId:      \${JSON.stringify(config.templateId      || '')},
       integrationKey: \${JSON.stringify(config.integrationKey || '')},
       userId:         \${JSON.stringify(config.userId         || '')},
       environment:    \${JSON.stringify(config.isDemo ? 'demo' : 'production')},

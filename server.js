@@ -443,10 +443,31 @@ app.post('/api/docusign/sign', async (req, res) => {
 });
 
 // ─────────────────────────────────────────────
-// Catch-all: serve frontend for any unknown route
+// Catch-all: serve frontend with env values injected
 // ─────────────────────────────────────────────
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const fs = require('fs');
+  const htmlPath = path.join(__dirname, 'public', 'index.html');
+
+  fs.readFile(htmlPath, 'utf8', (err, html) => {
+    if (err) return res.status(500).send('Could not load index.html');
+
+    // Inject a small config script before </head>
+    // Only non-secret values are sent — the RSA key never leaves the server.
+    const configScript = `
+  <script>
+    window.__DS_CONFIG__ = {
+      accountId:      \${JSON.stringify(config.accountId      || '')},
+      integrationKey: \${JSON.stringify(config.integrationKey || '')},
+      userId:         \${JSON.stringify(config.userId         || '')},
+      environment:    \${JSON.stringify(config.isDemo ? 'demo' : 'production')},
+    };
+  </script>`;
+
+    html = html.replace('</head>', configScript + '\n</head>');
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  });
 });
 
 // ─────────────────────────────────────────────

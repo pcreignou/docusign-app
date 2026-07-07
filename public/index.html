@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>DocuSign Embedded Signing</title>
+  <title>DocuSign Signing</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     :root {
       --ink:        #0f1923;
       --ink-soft:   #4a5568;
@@ -16,95 +17,97 @@
       --accent-lt:  #dbeafe;
       --success:    #059669;
       --success-lt: #d1fae5;
-      --warn:       #d97706;
       --warn-lt:    #fef3c7;
-      --danger:     #dc2626;
+      --warn:       #d97706;
       --danger-lt:  #fee2e2;
+      --danger:     #dc2626;
       --border:     #e2e8f0;
       --radius:     12px;
       --radius-sm:  8px;
       --shadow:     0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
       --shadow-lg:  0 8px 32px rgba(0,0,0,.12);
       --font:       'Inter', system-ui, -apple-system, sans-serif;
-      --mono:       'JetBrains Mono', 'Fira Code', monospace;
       --transition: 200ms cubic-bezier(.4,0,.2,1);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: var(--font); background: var(--paper); color: var(--ink); min-height: 100dvh; display: flex; flex-direction: column; }
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    h1 { font-size: clamp(1.4rem, 5vw, 1.75rem); font-weight: 700; line-height: 1.2; }
-    h2 { font-size: clamp(1.1rem, 4vw, 1.3rem); font-weight: 600; }
+
+    /* Header */
     header { background: var(--white); border-bottom: 1px solid var(--border); padding: 16px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; }
     .logo { width: 36px; height: 36px; background: var(--accent); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .logo svg { width: 20px; height: 20px; }
-    .header-text h1 { font-size: 1.1rem; }
-    .header-text p { font-size: .78rem; color: var(--ink-soft); margin-top: 1px; }
+    .header-text h1 { font-size: 1.1rem; font-weight: 700; }
+    .header-text p  { font-size: .78rem; color: var(--ink-soft); margin-top: 1px; }
     .env-badge { margin-left: auto; font-size: .7rem; font-weight: 600; padding: 3px 8px; border-radius: 20px; background: var(--warn-lt); color: var(--warn); letter-spacing: .03em; text-transform: uppercase; flex-shrink: 0; }
-    main { flex: 1; max-width: 640px; width: 100%; margin: 0 auto; padding: 24px 16px 40px; display: flex; flex-direction: column; gap: 20px; }
-    .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-    .card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
-    .card-icon { width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .card-icon.blue  { background: var(--accent-lt); color: var(--accent); }
-    .card-icon.green { background: var(--success-lt); color: var(--success); }
-    .card-body { padding: 20px; }
+
+    /* Layout */
+    main { flex: 1; max-width: 480px; width: 100%; margin: 0 auto; padding: 32px 16px 48px; display: flex; flex-direction: column; gap: 20px; }
+
+    /* Steps */
     .steps { display: flex; align-items: center; padding: 0 4px; }
-    .step { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; position: relative; }
+    .step  { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; position: relative; }
     .step:not(:last-child)::after { content: ''; position: absolute; top: 14px; left: calc(50% + 14px); right: calc(-50% + 14px); height: 2px; background: var(--border); transition: background var(--transition); }
     .step.done:not(:last-child)::after { background: var(--accent); }
     .step-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 600; background: var(--white); color: var(--ink-muted); transition: all var(--transition); z-index: 1; }
     .step.active .step-dot { border-color: var(--accent); color: var(--accent); background: var(--accent-lt); }
-    .step.done .step-dot   { border-color: var(--accent); background: var(--accent); color: var(--white); }
-    .step-label { font-size: .68rem; color: var(--ink-muted); font-weight: 500; text-align: center; white-space: nowrap; }
+    .step.done   .step-dot { border-color: var(--accent); background: var(--accent); color: var(--white); }
+    .step-label { font-size: .68rem; color: var(--ink-muted); font-weight: 500; text-align: center; }
     .step.active .step-label { color: var(--accent); }
-    .step.done .step-label   { color: var(--ink-soft); }
+    .step.done   .step-label { color: var(--ink-soft); }
+
+    /* Card */
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .card-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+    .card-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .card-icon.blue  { background: var(--accent-lt); color: var(--accent); }
+    .card-icon.green { background: var(--success-lt); color: var(--success); }
+    .card-body { padding: 24px; }
+
+    /* Form */
     .field { display: flex; flex-direction: column; gap: 6px; }
-    .field + .field { margin-top: 14px; }
-    label { font-size: .82rem; font-weight: 500; color: var(--ink-soft); }
-    input, select { font-family: var(--font); font-size: .9rem; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--white); color: var(--ink); width: 100%; transition: border-color var(--transition), box-shadow var(--transition); appearance: none; -webkit-appearance: none; }
-    input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+    .field + .field { margin-top: 16px; }
+    label { font-size: .82rem; font-weight: 600; color: var(--ink-soft); }
+    input { font-family: var(--font); font-size: 1rem; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--white); color: var(--ink); width: 100%; transition: border-color var(--transition), box-shadow var(--transition); appearance: none; }
+    input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
     input::placeholder { color: var(--ink-muted); }
-    .field-hint { font-size: .75rem; color: var(--ink-muted); }
-    .select-wrap { position: relative; }
-    .select-wrap::after { content: ''; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid var(--ink-soft); pointer-events: none; }
-    textarea { font-family: var(--mono); font-size: .78rem; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--paper); color: var(--ink); width: 100%; resize: vertical; min-height: 80px; transition: border-color var(--transition), box-shadow var(--transition); }
-    textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
-    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font); font-size: .9rem; font-weight: 600; padding: 12px 20px; border-radius: var(--radius-sm); border: none; cursor: pointer; transition: all var(--transition); white-space: nowrap; -webkit-tap-highlight-color: transparent; }
-    .btn-primary { background: var(--accent); color: var(--white); width: 100%; }
+
+    /* Button */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font); font-size: .95rem; font-weight: 600; padding: 13px 20px; border-radius: var(--radius-sm); border: none; cursor: pointer; transition: all var(--transition); width: 100%; -webkit-tap-highlight-color: transparent; }
+    .btn-primary { background: var(--accent); color: var(--white); }
     .btn-primary:hover:not(:disabled) { background: var(--accent-dk); }
     .btn-primary:active:not(:disabled) { transform: scale(.98); }
     .btn-ghost { background: transparent; color: var(--ink-soft); border: 1.5px solid var(--border); }
-    .btn-ghost:hover:not(:disabled) { background: var(--paper); color: var(--ink); }
+    .btn-ghost:hover:not(:disabled) { background: var(--paper); }
     .btn:disabled { opacity: .5; cursor: not-allowed; }
-    .btn-sm { padding: 8px 14px; font-size: .82rem; }
     .spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,.3); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .alert { display: flex; gap: 10px; padding: 12px 14px; border-radius: var(--radius-sm); font-size: .84rem; line-height: 1.45; }
+
+    /* Alert */
+    .alert { display: flex; gap: 10px; padding: 12px 14px; border-radius: var(--radius-sm); font-size: .84rem; line-height: 1.5; margin-bottom: 16px; }
     .alert-error   { background: var(--danger-lt);  color: #991b1b; }
     .alert-success { background: var(--success-lt); color: #065f46; }
     .alert-info    { background: var(--accent-lt);  color: #1e40af; }
-    .alert-warn    { background: var(--warn-lt);    color: #92400e; }
     .alert svg { flex-shrink: 0; margin-top: 1px; }
-    .token-box { font-family: var(--mono); font-size: .72rem; background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; word-break: break-all; color: var(--ink-soft); line-height: 1.6; max-height: 80px; overflow-y: auto; }
+
+    /* Signing iframe */
     #signing-wrapper { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); overflow: hidden; display: none; }
     #signing-wrapper.visible { display: block; }
-    .frame-topbar { padding: 12px 16px; background: var(--ink); color: var(--white); display: flex; align-items: center; gap: 10px; }
-    .frame-topbar-dot { width: 8px; height: 8px; border-radius: 50%; }
-    .dot-red { background: #ff5f57; } .dot-yellow { background: #ffbd2e; } .dot-green { background: #28c840; }
-    .frame-url { flex: 1; background: rgba(255,255,255,.1); border-radius: 4px; padding: 4px 10px; font-size: .72rem; font-family: var(--mono); color: rgba(255,255,255,.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    #docusign-iframe { width: 100%; height: 65vh; min-height: 480px; border: none; display: block; }
-    .section-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 12px; }
-    .row { display: flex; gap: 12px; }
-    .row > * { flex: 1; }
-    details { border-radius: var(--radius-sm); overflow: hidden; }
-    summary { padding: 10px 14px; background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; font-size: .82rem; font-weight: 500; color: var(--ink-soft); list-style: none; display: flex; align-items: center; gap: 6px; user-select: none; }
-    summary::-webkit-details-marker { display: none; }
-    details[open] summary { border-radius: var(--radius-sm) var(--radius-sm) 0 0; border-bottom-color: transparent; }
-    .code-block { font-family: var(--mono); font-size: .72rem; background: #1e293b; color: #94a3b8; padding: 16px; overflow-x: auto; border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--radius-sm) var(--radius-sm); line-height: 1.7; white-space: pre; }
-    .code-block .kw { color: #7dd3fc; } .code-block .str { color: #86efac; } .code-block .cmt { color: #475569; } .code-block .fn { color: #fde68a; }
+    .frame-topbar { padding: 10px 14px; background: var(--ink); display: flex; align-items: center; gap: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; } .dot-y { background: #ffbd2e; } .dot-g { background: #28c840; }
+    .frame-url { flex: 1; background: rgba(255,255,255,.1); border-radius: 4px; padding: 3px 10px; font-size: .7rem; font-family: monospace; color: rgba(255,255,255,.6); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #docusign-iframe { width: 100%; height: 70vh; min-height: 500px; border: none; display: block; }
+
+    /* Complete */
+    .complete-card { text-align: center; padding: 40px 24px; }
+    .complete-icon { width: 72px; height: 72px; background: var(--success-lt); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+    .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: .88rem; }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-label { color: var(--ink-soft); }
+
     footer { text-align: center; padding: 16px; font-size: .75rem; color: var(--ink-muted); border-top: 1px solid var(--border); }
-    .section { animation: fadeUp .25s ease both; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 480px) { .row { flex-direction: column; gap: 0; } .row > * + * { margin-top: 14px; } .step-label { font-size: .6rem; } }
+    .fadein { animation: fadeUp .25s ease both; }
   </style>
 </head>
 <body>
@@ -118,180 +121,112 @@
   </div>
   <div class="header-text">
     <h1>DocuSign Signing</h1>
-    <p>Embedded signing · JWT Auth</p>
+    <p>Powered by JWT grant &middot; Embedded signing</p>
   </div>
   <span class="env-badge" id="env-badge">Demo</span>
 </header>
 
 <main>
 
-  <div class="card section">
-    <div class="card-body" style="padding:16px 20px;">
-      <div class="steps" id="steps-bar">
-        <div class="step active" id="step-1"><div class="step-dot">1</div><div class="step-label">Configure</div></div>
-        <div class="step" id="step-2"><div class="step-dot">2</div><div class="step-label">Authenticate</div></div>
-        <div class="step" id="step-3"><div class="step-dot">3</div><div class="step-label">Sign</div></div>
-        <div class="step" id="step-4"><div class="step-dot">&#10003;</div><div class="step-label">Complete</div></div>
-      </div>
+  <!-- Steps -->
+  <div class="card fadein" style="padding: 16px 20px;">
+    <div class="steps">
+      <div class="step active" id="step-1"><div class="step-dot">1</div><div class="step-label">Details</div></div>
+      <div class="step" id="step-2"><div class="step-dot">2</div><div class="step-label">Sign</div></div>
+      <div class="step" id="step-3"><div class="step-dot">&#10003;</div><div class="step-label">Done</div></div>
     </div>
   </div>
 
-  <div id="panel-config" class="section">
+  <!-- Step 1: Signer details -->
+  <div id="panel-signer" class="fadein">
     <div class="card">
       <div class="card-header">
         <div class="card-icon blue">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M16.24 7.76a6 6 0 0 1 0 8.49m-8.49 0a6 6 0 0 1 0-8.49m-2.83-2.83a10 10 0 0 0 0 14.14"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
         </div>
         <div>
-          <h2>DocuSign Configuration</h2>
-          <p style="font-size:.78rem;color:var(--ink-soft);margin-top:2px;">Enter your integration key, RSA private key, and template ID</p>
+          <div style="font-size:1.05rem;font-weight:600;">Who is signing?</div>
+          <div style="font-size:.78rem;color:var(--ink-soft);margin-top:2px;">Enter the signer&rsquo;s details to begin</div>
         </div>
       </div>
       <div class="card-body">
-        <div id="alert-config"></div>
-
-        <p class="section-title">Account &amp; App Settings</p>
-
-        <div class="row">
-          <div class="field">
-            <label for="accountId">Account ID</label>
-            <input type="text" id="accountId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off" />
-          </div>
-          <div class="field">
-            <label for="integrationKey">Integration Key</label>
-            <input type="text" id="integrationKey" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off" />
-          </div>
+        <div id="alert-signer"></div>
+        <div class="field">
+          <label for="signerName">Full name</label>
+          <input type="text" id="signerName" placeholder="Jane Smith" autocomplete="name" />
         </div>
-
-        <div class="field" style="margin-top:14px;">
-          <label for="userId">User ID (impersonation subject)</label>
-          <input type="text" id="userId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off" />
-          <span class="field-hint">The DocuSign User GUID to impersonate via JWT grant</span>
+        <div class="field">
+          <label for="signerEmail">Email address</label>
+          <input type="email" id="signerEmail" placeholder="jane@example.com" autocomplete="email" />
         </div>
-
-        <div class="field" style="margin-top:14px;">
-          <label for="rsaKey">RSA Private Key</label>
-          <textarea id="rsaKey" rows="4" placeholder="-----BEGIN RSA PRIVATE KEY-----&#10;MIIEowIBAAKCAQEA...&#10;-----END RSA PRIVATE KEY-----"></textarea>
-          <span class="field-hint">Paste the private key associated with your integration key. Never share this.</span>
-        </div>
-
-        <div class="row" style="margin-top:14px;">
-          <div class="field">
-            <label for="templateId">Template ID</label>
-            <input type="text" id="templateId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" autocomplete="off" />
-          </div>
-          <div class="field">
-            <label>Environment</label>
-            <div class="select-wrap">
-              <select id="environment">
-                <option value="demo">Demo (sandbox)</option>
-                <option value="production">Production</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <hr style="border:none;border-top:1px solid var(--border);margin:20px 0;" />
-        <p class="section-title">Signer Details</p>
-
-        <div class="row">
-          <div class="field">
-            <label for="signerName">Full Name</label>
-            <input type="text" id="signerName" placeholder="Jane Smith" />
-          </div>
-          <div class="field">
-            <label for="signerEmail">Email</label>
-            <input type="email" id="signerEmail" placeholder="jane@example.com" />
-          </div>
-        </div>
-
-        <div class="field" style="margin-top:14px;">
-          <label for="returnUrl">Return URL (after signing)</label>
-          <input type="url" id="returnUrl" value="https://example.com/signing-complete" />
-          <span class="field-hint">The URL DocuSign redirects to after the session ends</span>
-        </div>
-
-        <button class="btn btn-primary" style="margin-top:20px;" id="btn-get-token">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          Get JWT Token &amp; Create Envelope
+        <button class="btn btn-primary" style="margin-top:24px;" id="btn-start">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
+          Start Signing
         </button>
       </div>
     </div>
   </div>
 
-  <div id="panel-token" class="section" style="display:none;">
-    <div class="card">
-      <div class="card-header">
-        <div class="card-icon green">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        </div>
-        <div>
-          <h2>Authentication Successful</h2>
-          <p style="font-size:.78rem;color:var(--ink-soft);margin-top:2px;">JWT exchanged &middot; Envelope created &middot; Signing URL ready</p>
-        </div>
-      </div>
-      <div class="card-body">
-        <div id="token-details"></div>
-        <button class="btn btn-primary" style="margin-top:16px;" id="btn-open-signing">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          Open Signing Session
-        </button>
-        <button class="btn btn-ghost btn-sm" style="margin-top:10px;width:100%;" id="btn-back-config">&#8592; Back to Configuration</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="signing-wrapper" class="section">
+  <!-- Step 2: Embedded signing iframe -->
+  <div id="signing-wrapper">
     <div class="frame-topbar">
-      <div class="frame-topbar-dot dot-red"></div>
-      <div class="frame-topbar-dot dot-yellow"></div>
-      <div class="frame-topbar-dot dot-green"></div>
-      <div class="frame-url" id="frame-url-display">Loading DocuSign...</div>
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <div class="frame-url" id="frame-url-display">Loading DocuSign&hellip;</div>
     </div>
-    <iframe id="docusign-iframe" title="DocuSign Embedded Signing" allow="camera; microphone"
-      sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>
+    <iframe id="docusign-iframe"
+      title="DocuSign Embedded Signing"
+      allow="camera; microphone"
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation">
+    </iframe>
   </div>
 
-  <div id="panel-complete" class="section" style="display:none;">
-    <div class="card" style="text-align:center;padding:32px 20px;">
-      <div style="width:64px;height:64px;background:var(--success-lt);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  <!-- Step 3: Complete -->
+  <div id="panel-complete" style="display:none;" class="fadein">
+    <div class="card">
+      <div class="complete-card">
+        <div class="complete-icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <div style="font-size:1.3rem;font-weight:700;color:var(--success);">Document Signed!</div>
+        <div style="color:var(--ink-soft);margin-top:8px;font-size:.9rem;">DocuSign will email copies to all parties.</div>
+        <div id="complete-summary" style="margin-top:24px;background:var(--paper);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 16px;text-align:left;"></div>
+        <button class="btn btn-ghost" style="margin-top:20px;max-width:260px;" id="btn-sign-another">Sign another document</button>
       </div>
-      <h2 style="color:var(--success);">Document Signed!</h2>
-      <p style="color:var(--ink-soft);margin-top:8px;font-size:.9rem;">The envelope has been completed successfully.</p>
-      <div id="complete-details" style="margin-top:16px;"></div>
-      <button class="btn btn-ghost" style="margin-top:20px;width:100%;max-width:280px;" id="btn-sign-another">Sign Another Document</button>
     </div>
   </div>
 
 </main>
 
 <footer>
-  DocuSign Embedded Signing &nbsp;&middot;&nbsp; JWT Grant Flow &nbsp;&middot;&nbsp;
-  <a href="https://developers.docusign.com/docs/esign-rest-api/how-to/embedded-signing/" target="_blank" style="color:var(--accent);text-decoration:none;">DocuSign Docs &#8599;</a>
+  Embedded Signing &middot; DocuSign JWT Grant &middot;
+  <a href="https://developers.docusign.com/docs/esign-rest-api/how-to/embedded-signing/" target="_blank" style="color:var(--accent);text-decoration:none;">Docs &#8599;</a>
 </footer>
 
 <script>
-// ── State ──
-var state = {
-  accessToken: null, envelopeId: null, signingUrl: null,
-  accountId: null, isDemo: true, signerName: null, signerEmail: null, clientUserId: null,
-};
+var state = { envelopeId: null, signingUrl: null, signerName: null, signerEmail: null };
 
-// ── Helpers ──
-function showAlert(containerId, type, html) {
+// ── Helpers ──────────────────────────────────
+function showAlert(id, type, msg) {
   var icons = {
-    error:   '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
-    success: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
-    info:    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
-    warn:    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    error: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+    info:  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
   };
-  document.getElementById(containerId).innerHTML =
-    '<div class="alert alert-' + type + '" style="margin-bottom:16px;">' + icons[type] + '<div>' + html + '</div></div>';
+  document.getElementById(id).innerHTML =
+    '<div class="alert alert-' + type + '">' + (icons[type] || '') + '<div>' + msg + '</div></div>';
 }
 
+function clearAlert(id) { document.getElementById(id).innerHTML = ''; }
+
 function setStep(n) {
-  for (var i = 1; i <= 4; i++) {
+  for (var i = 1; i <= 3; i++) {
     var el = document.getElementById('step-' + i);
     if (!el) continue;
     el.classList.remove('active', 'done');
@@ -300,45 +235,24 @@ function setStep(n) {
   }
 }
 
-function setLoading(btnId, loading) {
-  var btn = document.getElementById(btnId);
-  if (!btn) return;
+function setLoading(loading) {
+  var btn = document.getElementById('btn-start');
   btn.disabled = loading;
-  if (loading) {
-    btn.innerHTML = '<div class="spinner"></div> Authenticating&hellip;';
-  } else {
-    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Get JWT Token &amp; Create Envelope';
-  }
+  btn.innerHTML = loading
+    ? '<div class="spinner"></div> Preparing document&hellip;'
+    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Start Signing';
 }
 
-// ── Environment toggle ──
-document.getElementById('environment').addEventListener('change', function () {
-  var isDemo = this.value === 'demo';
-  var badge = document.getElementById('env-badge');
-  badge.textContent = isDemo ? 'Demo' : 'Production';
-  badge.style.background = isDemo ? 'var(--warn-lt)' : 'var(--danger-lt)';
-  badge.style.color = isDemo ? 'var(--warn)' : 'var(--danger)';
-});
+// ── Start signing ────────────────────────────
+function startSigning() {
+  var name  = document.getElementById('signerName').value.trim();
+  var email = document.getElementById('signerEmail').value.trim();
 
-// ── Step 1: Get JWT Token ──
-function getJwtToken() {
-  var templateId  = document.getElementById('templateId').value.trim();
-  var signerName  = document.getElementById('signerName').value.trim();
-  var signerEmail = document.getElementById('signerEmail').value.trim();
-  var returnUrl   = document.getElementById('returnUrl').value.trim();
-  var alertId     = 'alert-config';
+  if (!name)  { showAlert('alert-signer', 'error', 'Please enter the signer\'s full name.'); return; }
+  if (!email || !email.includes('@')) { showAlert('alert-signer', 'error', 'Please enter a valid email address.'); return; }
 
-  if (!templateId || !signerName || !signerEmail) {
-    showAlert(alertId, 'error', 'Please fill in Template ID, signer name, and signer email.');
-    return;
-  }
-  if (!signerEmail.includes('@')) {
-    showAlert(alertId, 'error', 'Please enter a valid email address for the signer.');
-    return;
-  }
-
-  document.getElementById('alert-config').innerHTML = '';
-  setLoading('btn-get-token', true);
+  clearAlert('alert-signer');
+  setLoading(true);
 
   var clientUserId = 'signer-' + Date.now();
 
@@ -346,148 +260,102 @@ function getJwtToken() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      templateId: templateId,
-      returnUrl:  returnUrl,
-      signer: { name: signerName, email: signerEmail, clientUserId: clientUserId, roleName: 'signer' },
+      signer: { name: name, email: email, clientUserId: clientUserId, roleName: 'signer' },
     }),
   })
-  .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+  .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
   .then(function (r) {
     if (!r.ok) {
       if (r.data.error === 'consent_required') {
-        throw new Error('DocuSign consent required. Ask your admin to visit: <a href="' + r.data.consentUrl + '" target="_blank" style="color:inherit;text-decoration:underline;">Grant Consent</a>');
+        throw new Error('Admin consent needed. <a href="' + r.data.consentUrl + '" target="_blank" style="color:inherit;text-decoration:underline;">Grant access &#8599;</a>');
       }
-      throw new Error(r.data.error || 'Server error');
+      throw new Error(r.data.error || 'Server error — check server logs.');
     }
 
-    state.envelopeId   = r.data.envelopeId;
-    state.signingUrl   = r.data.signingUrl;
-    state.clientUserId = clientUserId;
-    state.signerName   = signerName;
-    state.signerEmail  = signerEmail;
+    state.envelopeId  = r.data.envelopeId;
+    state.signingUrl  = r.data.signingUrl;
+    state.signerName  = name;
+    state.signerEmail = email;
 
-    document.getElementById('token-details').innerHTML =
-      '<div style="display:flex;flex-direction:column;gap:12px;">'
-      + '<div class="alert alert-success"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><div>JWT exchanged, envelope created, signing URL ready.</div></div>'
-      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">'
-      + '<div><div class="section-title">Envelope ID</div><div style="font-family:var(--mono);font-size:.75rem;color:var(--ink-soft);word-break:break-all;">' + r.data.envelopeId + '</div></div>'
-      + '<div><div class="section-title">Client User ID</div><div style="font-family:var(--mono);font-size:.75rem;color:var(--ink-soft);word-break:break-all;">' + clientUserId + '</div></div>'
-      + '</div>'
-      + '<div class="alert alert-info"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><div>RSA private key and access token are managed by the server.</div></div>'
-      + '</div>';
-
-    document.getElementById('panel-token').style.display = 'block';
-    document.getElementById('panel-token').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    // Open iframe
+    var wrapper = document.getElementById('signing-wrapper');
+    var iframe  = document.getElementById('docusign-iframe');
+    document.getElementById('frame-url-display').textContent = r.data.signingUrl;
+    iframe.src = r.data.signingUrl;
+    wrapper.classList.add('visible');
+    wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setStep(2);
   })
   .catch(function (err) {
-    showAlert(alertId, 'error', 'Authentication failed: ' + err.message);
+    showAlert('alert-signer', 'error', err.message);
   })
   .finally(function () {
-    setLoading('btn-get-token', false);
+    setLoading(false);
   });
 }
 
-// ── Step 2: Open signing iframe ──
-function openSigning() {
-  var wrapper = document.getElementById('signing-wrapper');
-  var iframe  = document.getElementById('docusign-iframe');
-  var urlDisp = document.getElementById('frame-url-display');
+// ── DocuSign postMessage events ──────────────
+window.addEventListener('message', function (e) {
+  var d = e.data;
+  if (!d || d.type !== 'docusign') return;
+  if (d.event === 'signing_complete')             onComplete(d.envelopeId);
+  if (d.event === 'cancel' || d.event === 'decline') onCancelled(d.event);
+});
 
-  urlDisp.textContent = state.signingUrl || 'Loading...';
-  iframe.src = state.signingUrl;
+function onComplete(envelopeId) {
+  document.getElementById('signing-wrapper').classList.remove('visible');
 
-  wrapper.classList.add('visible');
-  wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('complete-summary').innerHTML =
+    '<div class="summary-row"><span class="summary-label">Signer</span><span>' + state.signerName + '</span></div>'
+    + '<div class="summary-row"><span class="summary-label">Email</span><span>' + state.signerEmail + '</span></div>'
+    + '<div class="summary-row"><span class="summary-label">Envelope</span><span style="font-size:.75rem;font-family:monospace;">' + envelopeId + '</span></div>'
+    + '<div class="summary-row"><span class="summary-label">Completed</span><span>' + new Date().toLocaleString() + '</span></div>';
+
+  document.getElementById('panel-complete').style.display = 'block';
+  document.getElementById('panel-complete').scrollIntoView({ behavior: 'smooth' });
   setStep(3);
 }
 
-// ── postMessage listener ──
-window.addEventListener('message', function (e) {
-  var data = e.data;
-  if (!data || data.type !== 'docusign') return;
-  if (data.event === 'signing_complete') {
-    onSigningComplete(data.envelopeId);
-  } else if (data.event === 'cancel' || data.event === 'decline') {
-    onSigningCancelled(data.event);
-  }
-});
-
-function onSigningComplete(envelopeId) {
+function onCancelled(event) {
   document.getElementById('signing-wrapper').classList.remove('visible');
-  document.getElementById('panel-complete').style.display = 'block';
-  document.getElementById('complete-details').innerHTML =
-    '<div style="text-align:left;background:var(--paper);border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-size:.84rem;">'
-    + '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:6px;"><span style="color:var(--ink-soft);">Envelope ID</span><span style="font-family:var(--mono);font-size:.75rem;">' + envelopeId + '</span></div>'
-    + '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);margin-bottom:6px;"><span style="color:var(--ink-soft);">Signer</span><span>' + state.signerName + ' &lt;' + state.signerEmail + '&gt;</span></div>'
-    + '<div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--ink-soft);">Completed</span><span>' + new Date().toLocaleString() + '</span></div>'
-    + '</div>';
-  document.getElementById('panel-complete').scrollIntoView({ behavior: 'smooth' });
-  setStep(4);
-}
-
-function onSigningCancelled(eventType) {
-  showAlert('alert-config', 'warn', 'Signing was ' + (eventType === 'decline' ? 'declined' : 'cancelled') + ' by the signer.');
-  document.getElementById('signing-wrapper').classList.remove('visible');
+  showAlert('alert-signer', 'error', 'Signing was ' + (event === 'decline' ? 'declined' : 'cancelled') + '. You can try again.');
   setStep(1);
 }
 
 function resetFlow() {
-  state = { accessToken: null, envelopeId: null, signingUrl: null, accountId: null, isDemo: true, signerName: null, signerEmail: null, clientUserId: null };
-  document.getElementById('panel-token').style.display    = 'none';
+  state = { envelopeId: null, signingUrl: null, signerName: null, signerEmail: null };
   document.getElementById('panel-complete').style.display = 'none';
   document.getElementById('signing-wrapper').classList.remove('visible');
-  document.getElementById('alert-config').innerHTML = '';
   document.getElementById('docusign-iframe').src = '';
+  document.getElementById('signerName').value = '';
+  document.getElementById('signerEmail').value = '';
+  clearAlert('alert-signer');
   setStep(1);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ── Auto-fill from server-injected config ──
+// ── Init ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
-  // Wire up button event listeners (no inline onclick — CSP compliant)
-  var btnGetToken   = document.getElementById('btn-get-token');
-  var btnOpenSigning = document.getElementById('btn-open-signing');
-  var btnBackConfig  = document.getElementById('btn-back-config');
-  var btnSignAnother = document.getElementById('btn-sign-another');
-  if (btnGetToken)    btnGetToken.addEventListener('click', getJwtToken);
-  if (btnOpenSigning) btnOpenSigning.addEventListener('click', openSigning);
-  if (btnBackConfig)  btnBackConfig.addEventListener('click', resetFlow);
-  if (btnSignAnother) btnSignAnother.addEventListener('click', resetFlow);
+  document.getElementById('btn-start').addEventListener('click', startSigning);
+  document.getElementById('btn-sign-another').addEventListener('click', resetFlow);
 
-  var cfg = window.__DS_CONFIG__;
-  if (!cfg) return;
+  // Allow Enter key to submit
+  document.getElementById('signerEmail').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') startSigning();
+  });
 
-  function setVal(id, val) {
-    var el = document.getElementById(id);
-    if (el && val) el.value = val;
-  }
-
-  setVal('accountId',      cfg.accountId);
-  setVal('integrationKey', cfg.integrationKey);
-  setVal('userId',         cfg.userId);
-  setVal('templateId',     cfg.templateId);
-  setVal('returnUrl',      cfg.redirectUri);
-
-  if (cfg.environment) {
-    var sel = document.getElementById('environment');
-    if (sel) {
-      sel.value = cfg.environment;
-      sel.dispatchEvent(new Event('change'));
-    }
-  }
-
-  var filled = [cfg.accountId, cfg.integrationKey, cfg.userId, cfg.templateId, cfg.redirectUri].filter(Boolean).length;
-  if (filled > 0) {
-    var notice = document.createElement('div');
-    notice.className = 'alert alert-info';
-    notice.style.cssText = 'margin-bottom:16px;font-size:.8rem;';
-    notice.innerHTML =
-      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
-      + '<div>' + filled + ' field' + (filled > 1 ? 's' : '') + ' pre-filled from server environment.</div>';
-    var body = document.querySelector('#panel-config .card-body');
-    if (body) body.insertBefore(notice, body.firstChild);
-  }
+  // Show environment badge from server config
+  fetch('/api/config')
+    .then(function (r) { return r.json(); })
+    .then(function (cfg) {
+      if (cfg.environment === 'production') {
+        var badge = document.getElementById('env-badge');
+        badge.textContent = 'Production';
+        badge.style.background = 'var(--danger-lt)';
+        badge.style.color = 'var(--danger)';
+      }
+    })
+    .catch(function () {});
 });
 </script>
 

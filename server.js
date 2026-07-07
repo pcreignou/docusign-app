@@ -49,27 +49,22 @@ const apiBase = config.isDemo
 // ─────────────────────────────────────────────
 // Middleware
 // ─────────────────────────────────────────────
-// Helmet base settings (CSP set per-request below so we can inject a nonce)
 app.use(helmet({
-  contentSecurityPolicy: false, // handled per-request in the catch-all
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc:    ["'self'"],
+      scriptSrc:     ["'self'"],
+      scriptSrcAttr: ["'none'"],
+      styleSrc:      ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc:       ["'self'", 'https://fonts.gstatic.com'],
+      frameSrc:      ["'self'", 'https://demo.docusign.net', 'https://www.docusign.net',
+                      'https://account-d.docusign.com', 'https://account.docusign.com'],
+      connectSrc:    ["'self'", 'https://account-d.docusign.com', 'https://account.docusign.com',
+                      'https://demo.docusign.net', 'https://www.docusign.net'],
+      imgSrc:        ["'self'", 'data:'],
+    },
+  },
 }));
-
-// Per-request CSP middleware with nonce for the injected __DS_CONFIG__ script
-app.use((req, res, next) => {
-  const nonce = require('crypto').randomBytes(16).toString('base64');
-  res.locals.cspNonce = nonce;
-  res.setHeader('Content-Security-Policy', [
-    "default-src 'self'",
-    "script-src 'self' 'nonce-" + nonce + "'",
-    "script-src-attr 'none'",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "font-src 'self' https://fonts.gstatic.com",
-    "frame-src 'self' https://demo.docusign.net https://www.docusign.net https://account-d.docusign.com https://account.docusign.com",
-    "connect-src 'self' https://account-d.docusign.com https://account.docusign.com https://demo.docusign.net https://www.docusign.net",
-    "img-src 'self' data:",
-  ].join('; '));
-  next();
-});
 
 app.use(cors({
   origin: process.env.ALLOWED_ORIGIN || '*', // tighten this to your frontend URL in production
@@ -254,6 +249,21 @@ app.get('/api/debug-config', (req, res) => {
 });
 
 /**
+ * GET /api/config
+ * Returns non-secret config values for the frontend to pre-fill the form.
+ */
+app.get('/api/config', (req, res) => {
+  res.json({
+    accountId:      config.accountId      || '',
+    integrationKey: config.integrationKey || '',
+    userId:         config.userId         || '',
+    templateId:     config.templateId     || '',
+    redirectUri:    config.redirectUri    || '',
+    environment:    config.isDemo ? 'demo' : 'production',
+  });
+});
+
+/**
  * POST /api/docusign/authenticate
  * Exchanges a JWT assertion for a DocuSign access token.
  * Returns the token (server caches it; client only needs it for reference).
@@ -414,18 +424,24 @@ app.post('/api/docusign/signing-url', async (req, res) => {
 });
 
 /**
- * POST /api/docusign/sign  (convenience: does all 3 steps in one call)
- * Authenticates, creates envelope, and returns the signing URL.
+ * POST /api/docusign/sign
+ * Authenticates, creates envelope from the server-configured template,
+ * and returns the embedded signing URL.
  *
- * Body: { templateId, signer: { name, email, clientUserId, roleName? }, returnUrl }
+ * Body: { signer: { name, email, clientUserId, roleName? } }
  * Returns: { envelopeId, signingUrl }
  */
 app.post('/api/docusign/sign', async (req, res) => {
   try {
-    const { templateId, signer, returnUrl } = req.body;
+    const { signer } = req.body;
 
-    if (!templateId) return res.status(400).json({ error: 'templateId is required' });
-    if (!returnUrl)  return res.status(400).json({ error: 'returnUrl is required' });
+    // templateId and returnUrl come from server config — not the client
+    const templateId = config.templateId;
+    const returnUrl  = config.redirectUri;
+
+    if (!templateId) return res.status(500).json({ error: 'DS_TEMPLATE_ID is not configured on the server.' });
+    if (!returnUrl)  return res.status(500).json({ error: 'DS_REDIRECT_URI is not configured on the server.' });
+
     const signerError = validateSigner(signer);
     if (signerError)  return res.status(400).json({ error: signerError });
 
@@ -441,7 +457,7 @@ app.post('/api/docusign/sign', async (req, res) => {
     // Step 2: envelope
     const envelope = await createEnvelopeFromTemplate({
       accessToken,
-      accountId:  config.accountId,
+      accountId: config.accountId,
       templateId,
       signer,
     });
@@ -471,34 +487,10 @@ app.post('/api/docusign/sign', async (req, res) => {
 });
 
 // ─────────────────────────────────────────────
-// Catch-all: serve frontend with env values injected
+// Catch-all: serve frontend
 // ─────────────────────────────────────────────
 app.get('*', (req, res) => {
-  const fs = require('fs');
-  const htmlPath = path.join(__dirname, 'public', 'index.html');
-
-  fs.readFile(htmlPath, 'utf8', (err, html) => {
-    if (err) return res.status(500).send('Could not load index.html');
-
-    // Inject a small config script before </head>
-    // Only non-secret values are sent — the RSA key never leaves the server.
-    // Build config block using string concat — no template literal escaping issues
-    const nonce = res.locals.cspNonce;
-    const configScript = '<script nonce="' + nonce + '">\n'
-      + '  window.__DS_CONFIG__ = {\n'
-      + '    accountId:      ' + JSON.stringify(config.accountId      || '') + ',\n'
-      + '    integrationKey: ' + JSON.stringify(config.integrationKey || '') + ',\n'
-      + '    userId:         ' + JSON.stringify(config.userId         || '') + ',\n'
-      + '    environment:    ' + JSON.stringify(config.isDemo ? 'demo' : 'production') + ',\n'
-      + '    templateId:     ' + JSON.stringify(config.templateId  || '') + ',\n'
-      + '    redirectUri:    ' + JSON.stringify(config.redirectUri || '') + ',\n'
-      + '  };\n'
-      + '<\/script>';
-
-    html = html.replace('</head>', configScript + '\n</head>');
-    res.setHeader('Content-Type', 'text/html');
-    res.send(html);
-  });
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // ─────────────────────────────────────────────

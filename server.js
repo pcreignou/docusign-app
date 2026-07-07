@@ -166,6 +166,14 @@ async function createEnvelopeFromTemplate({ accessToken, accountId, templateId, 
         name:         signer.name,
         roleName:     signer.roleName || 'signer',
         clientUserId: signer.clientUserId, // required for embedded signing
+        recipientSignatureProviders: [
+        {
+          signatureProviderName: 'UniversalSignaturePen_OpenTrust_Hash_TSP',
+          signatureProviderOptions: {
+            sms: '+33632136324'
+          }
+        }
+      ]
       },
     ],
   };

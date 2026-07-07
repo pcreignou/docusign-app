@@ -49,21 +49,27 @@ const apiBase = config.isDemo
 // ─────────────────────────────────────────────
 // Middleware
 // ─────────────────────────────────────────────
+// Helmet base settings (CSP set per-request below so we can inject a nonce)
 app.use(helmet({
-  // Allow iframe embedding for the signing page
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc:  ["'self'", "'unsafe-inline'"],  // needed for inline scripts in index.html
-      styleSrc:   ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
-      fontSrc:    ["'self'", 'fonts.gstatic.com'],
-      frameSrc:   ["'self'", 'https://demo.docusign.net', 'https://www.docusign.net', 'https://account-d.docusign.com'],
-      connectSrc: ["'self'", 'https://account-d.docusign.com', 'https://account.docusign.com',
-                   'https://demo.docusign.net', 'https://www.docusign.net'],
-      imgSrc:     ["'self'", 'data:'],
-    },
-  },
+  contentSecurityPolicy: false, // handled per-request in the catch-all
 }));
+
+// Per-request CSP middleware with nonce for the injected __DS_CONFIG__ script
+app.use((req, res, next) => {
+  const nonce = require('crypto').randomBytes(16).toString('base64');
+  res.locals.cspNonce = nonce;
+  res.setHeader('Content-Security-Policy', [
+    "default-src 'self'",
+    "script-src 'self' 'nonce-" + nonce + "'",
+    "script-src-attr 'none'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "frame-src 'self' https://demo.docusign.net https://www.docusign.net https://account-d.docusign.com https://account.docusign.com",
+    "connect-src 'self' https://account-d.docusign.com https://account.docusign.com https://demo.docusign.net https://www.docusign.net",
+    "img-src 'self' data:",
+  ].join('; '));
+  next();
+});
 
 app.use(cors({
   origin: process.env.ALLOWED_ORIGIN || '*', // tighten this to your frontend URL in production
@@ -477,7 +483,8 @@ app.get('*', (req, res) => {
     // Inject a small config script before </head>
     // Only non-secret values are sent — the RSA key never leaves the server.
     // Build config block using string concat — no template literal escaping issues
-    const configScript = '<script>\n'
+    const nonce = res.locals.cspNonce;
+    const configScript = '<script nonce="' + nonce + '">\n'
       + '  window.__DS_CONFIG__ = {\n'
       + '    accountId:      ' + JSON.stringify(config.accountId      || '') + ',\n'
       + '    integrationKey: ' + JSON.stringify(config.integrationKey || '') + ',\n'
